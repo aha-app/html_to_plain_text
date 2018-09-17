@@ -148,4 +148,10 @@ RSpec.describe HtmlToPlainText do
     html = "<p>ümlaut</p>"
     expect(text(html)).to eq "ümlaut"
   end
+
+  it 'handles curly quotes' do
+    html = '<p>I sometimes use fancy quotes like ‘ ’ “ and ”</p>'
+    expect(text(html)).to eq "I sometimes use fancy quotes like ' ' \" and \""
+  end
+
 end
