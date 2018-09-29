@@ -154,4 +154,15 @@ RSpec.describe HtmlToPlainText do
     expect(text(html)).to eq "I sometimes use fancy quotes like ' ' \" and \""
   end
 
+  it 'handles non-breaking space' do
+    html = '<p>I sometimes&nbsp;use funny spaces</p>'
+    expect(text(html)).to eq "I sometimes use funny spaces"
+    html = '<p>I sometimes&nbsp;&nbsp;&nbsp;use funny spaces</p>'
+    expect(text(html)).to eq "I sometimes   use funny spaces"
+    html = '<p>Start<span>&nbsp;</span>End</span>'
+    expect(text(html)).to eq "Start End"
+    html = '<p><pre>I sometimes&nbsp;use funny spaces</pre></p>'
+    expect(text(html)).to eq "I sometimes use funny spaces"
+  end
+
 end

@@ -73,19 +73,19 @@ module HtmlToPlainText
 
       parent.children.each do |node|
         if node.text? || node.cdata?
-          text = node.text.gsub(NON_BREAKING_SPACE, EMPTY)
+          text = node.text.gsub(NON_BREAKING_SPACE, SPACE)
           text = text.gsub(/#{LEFT_SINGLE_QUOTE}|#{RIGHT_SINGLE_QUOTE}/, APOSTROPHE)
           text = text.gsub(/#{LEFT_DOUBLE_QUOTE}|#{RIGHT_DOUBLE_QUOTE}/, QUOTE)
           unless options[:pre]
             text = node.text.gsub(LINE_BREAK_PATTERN, SPACE).squeeze(SPACE)
-            text = text.gsub(NON_BREAKING_SPACE, EMPTY)
+            text = text.gsub(NON_BREAKING_SPACE, SPACE)
             text = text.gsub(/#{LEFT_SINGLE_QUOTE}|#{RIGHT_SINGLE_QUOTE}/, APOSTROPHE)
             text = text.gsub(/#{LEFT_DOUBLE_QUOTE}|#{RIGHT_DOUBLE_QUOTE}/, QUOTE)
             text.lstrip! if WHITESPACE.include?(out[-1, 1])
           end
           out << text
         elsif node.name == PLAINTEXT
-          text = node.text.gsub(NON_BREAKING_SPACE, EMPTY)
+          text = node.text.gsub(NON_BREAKING_SPACE, SPACE)
           text = text.gsub(/#{LEFT_SINGLE_QUOTE}|#{RIGHT_SINGLE_QUOTE}/, APOSTROPHE)
           text = text.gsub(/#{LEFT_DOUBLE_QUOTE}|#{RIGHT_DOUBLE_QUOTE}/, QUOTE)
           out << text
