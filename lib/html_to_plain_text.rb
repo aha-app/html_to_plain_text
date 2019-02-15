@@ -168,7 +168,9 @@ module HtmlToPlainText
     end
 
     def data_table?(table)
-      table.attributes['border'].to_s.to_i > 0
+      !table.attributes['border'] ||
+        table.attributes['border'].to_s.to_i > 0
+    end
     end
   end
 end
