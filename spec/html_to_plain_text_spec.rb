@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# encoding: utf-8
 require 'spec_helper'
 
 RSpec.describe HtmlToPlainText do
@@ -61,6 +61,11 @@ RSpec.describe HtmlToPlainText do
     expect(text(html)).to eq "List\n\n1. one\n2. two\n\na. a\nb. b\n\n3. three"
   end
 
+  it "ignores surrounding paragraph tags inside lists" do
+    html = "List<ol><li><p>one</p></li><li><h2>two</h2><ol></ol>"
+    expect(text(html)).to eq "List\n\n1. one\n2. two"
+  end
+
   describe "tables" do
     it "formats a simgple table" do
       html = "Table<table border='1'><tr><th>Col 1</th><th>Col 2</th></tr><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table>"
@@ -70,6 +75,11 @@ RSpec.describe HtmlToPlainText do
     it "does not add bars to a layout table" do
       html = "Table<table border='0'><tr><th>Col 1</th><th>Col 2</th></tr><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table>"
       expect(text(html)).to eq "Table\n\nCol 1 Col 2\n1 2\n3 4"
+    end
+
+    it "ignores surrounding paragraph tags" do
+      html = "Table<table><tr><th><h1>Col 1</h1></th><th><h1>Col 2</h1></th></tr><tr><td><p>1</p></td><td><p>2</p></td></tr></table>"
+      expect(text(html)).to eq "Table\n\n| Col 1 | Col 2 |\n| 1 | 2 |"
     end
   end
 
