@@ -4,6 +4,7 @@ require 'nokogiri'
 module HtmlToPlainText
   IGNORE_TAGS = %w(script style object applet iframe).inject({}){|h, t| h[t] = true; h}.freeze
   PARAGRAPH_TAGS = %w(p h1 h2 h3 h4 h5 h6 table ol ul dl dd blockquote dialog figure aside section).inject({}){|h, t| h[t] = true; h}.freeze
+  PARAGRAPH_TEXT_TAGS = %w(p h1 h2 h3 h4 h5 h6 blockquote).inject({}){|h, t| h[t] = true; h}.freeze
   BLOCK_TAGS = %w(div address li dt center del article header header footer nav pre legend tr).inject({}){|h, t| h[t] = true; h}.freeze
   WHITESPACE = [" ", "\n", "\r"].freeze
   PLAINTEXT = "plaintext".freeze
@@ -18,6 +19,7 @@ module HtmlToPlainText
   LI = "li".freeze
   A = "a".freeze
   TABLE = "table".freeze
+  CONTAINERS = [TD, TH, LI].freeze
   NUMBERS = ["1", "a"].freeze
   ABSOLUTE_URL_PATTERN = /^[a-z]+:\/\/[a-z0-9]/i.freeze
   HTML_PATTERN = /[<&]/.freeze
@@ -61,7 +63,7 @@ module HtmlToPlainText
     # Convert an HTML node to plain text. This method is called recursively with the output and
     # formatting options for special tags.
     def convert_node_to_plain_text(parent, out = '', options = {})
-      if PARAGRAPH_TAGS.include?(parent.name)
+      if PARAGRAPH_TAGS.include?(parent.name) && !first_text_paragraph_in_container?(parent)
         append_paragraph_breaks(out)
       elsif BLOCK_TAGS.include?(parent.name)
         append_block_breaks(out)
@@ -110,7 +112,7 @@ module HtmlToPlainText
                 node.text != href[NON_PROTOCOL_PATTERN, 1] # use only text for <a href="mailto:a@b.com">a@b.com</a>
               out << " (#{href}) "
             end
-          elsif PARAGRAPH_TAGS.include?(node.name)
+          elsif PARAGRAPH_TAGS.include?(node.name) && !last_text_paragraph_in_container?(node)
             append_paragraph_breaks(out)
           elsif BLOCK_TAGS.include?(node.name)
             append_block_breaks(out)
@@ -171,6 +173,18 @@ module HtmlToPlainText
       !table.attributes['border'] ||
         table.attributes['border'].to_s.to_i > 0
     end
+
+    def paragraph_node_in_container?(node)
+      PARAGRAPH_TEXT_TAGS.include?(node.name) &&
+        CONTAINERS.include?(node.parent.name)
+    end
+
+    def first_text_paragraph_in_container?(node)
+      paragraph_node_in_container?(node) && node.parent.children.first.eql?(node)
+    end
+
+    def last_text_paragraph_in_container?(node)
+      paragraph_node_in_container?(node) && node.parent.children.last.eql?(node)
     end
   end
 end
